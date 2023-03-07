@@ -1,0 +1,3 @@
+<div>
+    Artist page
+</div>

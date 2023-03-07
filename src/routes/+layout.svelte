@@ -61,7 +61,7 @@
 
 	<!-- Page Route Content -->
 
-	<WalletProvider {localStorageKey} {wallets} autoConnect  />
+	<WalletProvider {localStorageKey} {wallets}  />
 
 	<slot />
 
