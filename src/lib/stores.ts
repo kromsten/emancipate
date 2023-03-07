@@ -1,3 +1,4 @@
 import { writable } from "svelte/store";
 
-export const counter = writable(1);
+
+export const connected = writable(0);

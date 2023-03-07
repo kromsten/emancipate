@@ -1,9 +1,11 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+
 
 export default defineConfig({
-	plugins: [sveltekit()],
+	plugins: [sveltekit(), nodePolyfills({protocolImports: true})],
 	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}']
+		include: ['src/**/*.{test,spec}.{js,ts}', '@project-serum/anchor', '@solana/web3.js', 'buffer' ]
 	}
 });
