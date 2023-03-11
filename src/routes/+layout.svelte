@@ -4,13 +4,9 @@
 	import '../app.postcss';
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
 	import Connect from '$lib/components/connect.svelte';
-
-	import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
-	import { type WorkSpace, AnchorConnectionProvider } from '@svelte-on-solana/wallet-adapter-anchor';
-	import { WalletProvider, WalletMultiButton } from '@svelte-on-solana/wallet-adapter-ui';
+	import { WalletProvider } from '@svelte-on-solana/wallet-adapter-ui';
 	import { clusterApiUrl } from '@solana/web3.js';
 	import { onMount } from 'svelte';
-
 
 	const localStorageKey = 'walletAdapter';
 	const network = clusterApiUrl('devnet'); // localhost or mainnet
@@ -18,6 +14,7 @@
 	let wallets : any[];
 
 	let idl : any = {}
+	
 
 	onMount(async () => {
 		const {
@@ -37,6 +34,7 @@
 		];
 
 		wallets = walletsMap;
+
 	});
 
 
@@ -48,7 +46,7 @@
 		<!-- App Bar -->
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<strong class="text-xl">e-man-ci-pate</strong>
+				<a href="/" class="text-xl">e-man-ci-pate</a>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 
@@ -61,7 +59,7 @@
 
 	<!-- Page Route Content -->
 
-	<WalletProvider {localStorageKey} {wallets}  />
+	<WalletProvider autoConnect={true} {localStorageKey} {wallets}  />
 
 	<slot />
 

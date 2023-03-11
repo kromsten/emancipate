@@ -7,7 +7,7 @@
 
 <div class="container mx-auto p-6">
 	<TabGroup>
-		<Tab bind:group={$tabSet} name="tab1" value={0}>Artist</Tab>
-		<Tab bind:group={$tabSet} name="tab2" value={1}>Consumer</Tab>
+		<Tab bind:group={$tabSet} name="tab1" value={0}>Marketplace</Tab>
+		<Tab bind:group={$tabSet} name="tab2" value={1}>Artist</Tab>
 	</TabGroup>
 </div>

@@ -2,7 +2,7 @@
     import AssetComponent from "./asset.svelte";
 	import type AssetType from "$lib/types/asset";
 
-    let assets : AssetType[] = [
+    let assets : AssetType[] = [] /* = [
         {
             id: "1",
             name: "Asset 1",
@@ -34,16 +34,20 @@
             mediaType: "image",
         },
 
-    ];
+    ]; */
 </script>
 
 <div class="p-3">
-    <h3 class="text mb-4">Assets:</h3>
-    <div class="flex flex-col gap-5">
-        { #each assets as asset (asset.id) }
-            <AssetComponent {asset} />
-        {/each}
 
-    </div>
+    { #if  assets.length }
+        <h3 class="text mb-4">Assets:</h3>
+        <div class="flex flex-col gap-5">
+            { #each assets as asset (asset.id) }
+                <AssetComponent {asset} />
+            {/each}
+
+        </div>
+        
+    {/if}
 
 </div>
