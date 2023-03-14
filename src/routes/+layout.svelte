@@ -2,7 +2,7 @@
 	import '@skeletonlabs/skeleton/themes/theme-gold-nouveau.css';
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Modal, Toast } from '@skeletonlabs/skeleton';
 	import Connect from '$lib/components/connect.svelte';
 	import { WalletProvider } from '@svelte-on-solana/wallet-adapter-ui';
 	import { clusterApiUrl } from '@solana/web3.js';
@@ -73,6 +73,10 @@
 
 
 </AppShell>
+
+<Modal />
+<Toast position={'t'} />
+
 
 
 <style>

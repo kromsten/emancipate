@@ -1,53 +1,41 @@
 <script lang="ts">
-    import AssetComponent from "./asset.svelte";
-	import type AssetType from "$lib/types/asset";
+    import { modalStore, ListBox, ListBoxItem, type ModalSettings } from '@skeletonlabs/skeleton';
+	import DownloadModal from './downloadModal.svelte';
+    export let files : string[]
 
-    let assets : AssetType[] = [] /* = [
-        {
-            id: "1",
-            name: "Asset 1",
-            description: "Asset 1 description",
-            tags: ["tag1", "tag2"],
-            mediaType: "image",
-        },
-        {
-            id: "2",
-            name: "Asset 2",
-            description: "Asset 2 description",
-            tags: ["tag1", "tag2"],
-            mediaType: "image",
-        },
-        {
-            id: "3",
-            name: "Asset 3",
-            description: "Asset 3 description",
-            tags: ["tag1", "tag2"],
-            mediaType: "image",
+    let selectedFile: string;
 
-        },
+    
+    const component = {
+        ref: DownloadModal
+    }
 
-        {
-            id: "4",
-            name: "New onw",
-            description: "",
-            tags: ["tag1", "tag2"],
-            mediaType: "image",
-        },
+    const promptTemplate: ModalSettings = {
+        type: 'component',
+        modalClasses: "w-max",
+        component
+    }
 
-    ]; */
+
+    const onClick = () => {
+        modalStore.trigger({...promptTemplate, meta: { file: selectedFile }})
+    }
+    
+
 </script>
 
-<div class="p-3">
-
-    { #if  assets.length }
-        <h3 class="text mb-4">Assets:</h3>
-        <div class="flex flex-col gap-5">
-            { #each assets as asset (asset.id) }
-                <AssetComponent {asset} />
-            {/each}
-
-        </div>
-        
-    {/if}
+<div>
+    <ListBox>
+        { #each files as file (file)}
+            <ListBoxItem bind:group={selectedFile} name="medium" value={file}>{file}</ListBoxItem>
+        {/each}
+    </ListBox>
+    
+    <br>
+    
+    { #if selectedFile }
+        <button class="btn btn-sm variant-filled-primary" on:click={onClick}>Download</button>
+    {/if }
 
 </div>
+

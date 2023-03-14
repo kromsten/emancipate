@@ -4,6 +4,7 @@
     import { address, drive } from "$lib/stores";
 	import { DRIVE_ROOT } from "$lib/config/consts";
 	import { storageKey } from "$lib/config";
+	import AssetList from "./assetList.svelte";
 
     let loading = false;
     let error : string;
@@ -42,12 +43,13 @@
         <div class="px-3 my-4">
             <h3 class="text-2xl font-bold">My assets</h3>
             <hr>
-            { #each myFiles as asset }
-                <div> { asset } </div>
-            {/each}
+
+            <AssetList files={myFiles} />
+
         </div>
     {/if}
     
+    <hr>
     <br>
     
     <div class="px-3">

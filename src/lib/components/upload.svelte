@@ -1,12 +1,11 @@
 <script lang="ts">
     import { FileDropzone } from '@skeletonlabs/skeleton';
-	import { decryptFileWithLit, encryptFileWithLit } from '$lib/utils/crypto';
-	import { JSON_POST_PARAMS } from '$lib/utils/util';
+	import { decryptFileWithLit, encryptFileWithLit, getKey } from '$lib/utils/crypto';
 	import { address, key } from '$lib/stores';
 	import RecordLogo from './recordLogo.svelte';
-	import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
 
-    import { createHash } from 'sha256-uint8array'
+    import { Toast, toastStore } from '@skeletonlabs/skeleton';
+    import type { ToastSettings } from '@skeletonlabs/skeleton';
 
 
     type submitFile = {
@@ -24,10 +23,17 @@
 
     let files : FileList;
 
+    let error : string = "";
+
 
     $: if (files?.length > 0) {
         // litConnect();
     }
+
+
+    const ts : ToastSettings = {
+        message: 'Success',
+    };
 
 
 
@@ -45,40 +51,46 @@
     }
 
 
-    const getKey = async () => {
-
-        const signature = await $walletStore.signMessage!(Buffer.from('Emancipate encryption'))
-        const digest = createHash().update(signature).digest('')
-        $key = Uint8Array.from(Buffer.from(digest))
-
-
-    }
+    
 
     const encrypt = async (file : submitFile) => {
 
-        if (!$key) await getKey();
-        if (!$key) return false;
+        try {
+            if (!$key) await getKey();
+            if (!$key) return false;
+    
+            const encrypted  = await encryptFileWithLit(file.data, $key);
+            submitData[file.name].encrypted = true;
+            submitData[file.name].data = encrypted;
+            submitData[file.name].size = encrypted.size;
+    
+            return true
+        } catch (err : any) {
+            console.log(err)
+            error = err.message;
+            return false
+        }
 
-        const encrypted  = await encryptFileWithLit(file.data, $key);
-        submitData[file.name].encrypted = true;
-        submitData[file.name].data = encrypted;
-        submitData[file.name].size = encrypted.size;
-
-        return true
 
     }
 
     const decrypt = async (file : submitFile) => {
 
-        if (!key) await getKey();
-        if (!key) return false;
-
-        const content  = await decryptFileWithLit(file.data, $key);
-        submitData[file.name].encrypted = false;
-        submitData[file.name].data = content;
-        submitData[file.name].size = content.size;
-
-        return true
+        try {
+            if (!key) await getKey();
+            if (!key) return false;
+    
+            const content  = await decryptFileWithLit(file.data, $key);
+            submitData[file.name].encrypted = false;
+            submitData[file.name].data = content;
+            submitData[file.name].size = content.size;
+    
+            return true
+        } catch (err : any) {
+            console.log(err)
+            error = err.message;
+            return false
+        }
 
     }
 
@@ -105,21 +117,41 @@
 
     const upload = async () => {
 
-        if (!address) return;
+        try {
 
-        const formData = new FormData();
-
-        for(const file of Object.values(submitData)) {
-            formData.append(file.name, file.data);
+            if (!address) return;
+    
+            const formData = new FormData();
+    
+            for(const file of Object.values(submitData)) {
+                formData.append(file.name, file.data);
+            }
+    
+            formData.append('address', $address);
+    
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async (res) => {
+                console.log("res", res)
+                if (res.ok) return await res.json()
+                else throw new Error((await res.json()).message)
+            })
+            .then(res => {
+                console.log(res.statuses)
+                toastStore.trigger(ts);
+                setTimeout(() => window.location.href = '/', 1000)
+            })
+            .catch(err => {
+                console.log(err)
+                error = err.message;
+            })
+            
+        } catch (err : any) {
+            console.log(err)
+            error = err.message;
         }
-
-        formData.append('address', $address);
-
-        const res = await fetch('/upload', {
-            method: 'POST',
-            body: formData
-        }).then(res => res.json());
-        console.log("res:", res)
 
     }
 
@@ -164,7 +196,7 @@
                 </div>
             {/each}
     
-            <div class="grid grid-cols-2 w-100 mt-5 mb-3">
+            <div class="grid grid-cols-1 w-100 mt-5 mb-3">
     
         
                 <div class="flex justify-end">
@@ -178,6 +210,7 @@
                 </div>
             </div>
 
+            
             <div class="grid grid-cols-1 w-100 mt-7">
                 <div class="flex justify-center">
                     <button class="btn btn-lg variant-filled-primary" on:click={upload}>
@@ -186,6 +219,16 @@
                 </div>
             </div>
         {/if}
+
+        { #if error }
+            <div class="grid grid-cols-1 w-100 mt-5 mb-3">
+                <div class="flex justify-center">
+                    <span class="text-red-700 font-bold">Error: {error}</span>
+                </div>
+            </div>
+        {/if}
     </div>
+
+
 
 </section>
