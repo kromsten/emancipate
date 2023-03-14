@@ -5,7 +5,7 @@ A tool for encrypting and uploading assets to shadow drive
 ## Instalation
 ```bash
 npm install
-```bash
+```
 using node
 
 
