@@ -1,26 +1,25 @@
 <script lang="ts">
 	import Tabs from '$lib/components/tabs.svelte';
 	import Artist from '$lib/components/artist.svelte';
-	import Consumer from '$lib/components/consumer.svelte';
-	import { connected, tabSet } from '$lib/stores';
+	import { tabSet } from '$lib/stores';
 	import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
+
 </script>
 
 
 
-<div class="container mx-auto p-6">
+<div class="container mx-auto p-6 font-sans">
 
 	{ #if $walletStore.connected }
-		<Tabs />
-
-		{ #if $tabSet === 0 }
-			<Artist />
-		{ :else if $tabSet === 1 }
-			<Consumer />
-		{/if}
-
+		<Artist />
 	{ :else }
-		Not connected
+
+		<div class="mt-5 flex justify-center items-cemter">
+			<div class="flex flex-col items-center">
+				<h1 class="text-4xl">Connect your wallet</h1>
+				<p class="text-xl">to get started</p>
+			</div>
+		</div>
 	{ /if }
 
 

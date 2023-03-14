@@ -11,7 +11,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
-		"format": "prettier --plugin-search-dir . --write ."
+		"format": "prettier --plugin-search-dir . --write .",
+		"deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
+		"deploy:dev": "pm2 start ecosystem.config.js --only dev"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
@@ -39,10 +41,19 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@lit-protocol/sdk-browser": "^1.1.249",
+		"@lit-protocol/sdk-nodejs": "^1.1.249",
+		"@project-serum/anchor": "^0.26.0",
+		"@shadow-drive/sdk": "^3.2.2",
+		"@solana/wallet-adapter-base": "^0.9.22",
 		"@solana/wallet-adapter-wallets": "^0.19.15",
+		"@solana/web3.js": "^1.73.3",
 		"@svelte-on-solana/wallet-adapter-anchor": "^1.0.16-alpha.0",
 		"@svelte-on-solana/wallet-adapter-core": "^1.0.11-alpha.0",
 		"@svelte-on-solana/wallet-adapter-ui": "^1.0.21-alpha.0",
+		"@sveltejs/adapter-node": "^1.2.2",
+		"pm2": "^5.2.2",
+		"sha256-uint8array": "^0.10.5",
 		"vite-plugin-node-polyfills": "^0.7.0"
 	}
 }
