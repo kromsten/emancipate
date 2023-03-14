@@ -4,6 +4,7 @@ import { json, error } from "@sveltejs/kit";
 
 
 
+
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, locals }) {
   const data = await request.formData()
@@ -42,9 +43,7 @@ export async function POST({ request, locals }) {
     throw error(500, 'Error uploading files to Shadow Drive')
   }
 
-  res.forEach((x) => {
-    console.log(x)
-  })
+
 
   return json({
     statuses: res.map((x) => ({ name: x.fileName.split('_')[1], status: x.status }))

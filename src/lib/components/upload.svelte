@@ -119,7 +119,7 @@
 
         try {
 
-            if (!address) return;
+            if (!$address) return;
     
             const formData = new FormData();
     
