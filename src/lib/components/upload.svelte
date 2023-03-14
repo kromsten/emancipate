@@ -4,6 +4,7 @@
 	import { JSON_POST_PARAMS } from '$lib/utils/util';
 	import { address } from '$lib/stores';
 	import RecordLogo from './recordLogo.svelte';
+	import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
 
     
     type submitFile = {
@@ -27,6 +28,7 @@
         // litConnect();
     }
 
+
     const onChangeHandler = (e: any): void => {
         files = e.target?.files as FileList;
 
@@ -42,12 +44,11 @@
 
     const encrypt = async (file : submitFile) => {
 
-        if (!input.reportValidity()) {
-            input.focus()
-            return;
-        } 
+        const key = await $walletStore.signMessage!(Buffer.from('Emancipate encryption'))
+        
+        if (!key) return;
 
-        const { encryptedFile, symmetricKey }  = await encryptFileWithLit(file.data);
+        const { encryptedFile, symmetricKey }  = await encryptFileWithLit(file.data, key);
         submitData[file.name].encrypted = true;
         submitData[file.name].symmetricKey = symmetricKey;
         submitData[file.name].data = encryptedFile;
@@ -57,11 +58,6 @@
 
     const decrypt = async (file : submitFile) => {
 
-        if (!input.reportValidity()) {
-            input.focus()
-            return;
-        } 
-
         const content  = await decryptFileWithLit(file.data, file.symmetricKey!);
         submitData[file.name].encrypted = false;
         submitData[file.name].data = content;
@@ -69,12 +65,6 @@
     }
 
     const encryptAll = async () => {
-
-        if (!input.reportValidity()) {
-            input.focus()
-            return;
-        } 
-            
 
         for (const file of Object.values(submitData)) {
             if (!file.encrypted) {
@@ -85,11 +75,6 @@
     }
 
     const decryptAll = async () => {
-        
-        if (!input.reportValidity()) {
-            input.focus()
-            return;
-        } 
 
         for (const file of Object.values(submitData)) {
             if (file.encrypted) {
@@ -161,9 +146,7 @@
     
             <div class="grid grid-cols-2 w-100 mt-5 mb-3">
     
-                <!-- Encryption password -->
-                <input class="form-input rounded" required minlength={3} bind:this={input} type="text" placeholder="Encryption Password" bind:value={password} />
-    
+        
                 <div class="flex justify-end">
                     <button class="btn variant-filled-primary" on:click={encrypted ? decryptAll : encryptAll}>
                         {#if encrypted}
