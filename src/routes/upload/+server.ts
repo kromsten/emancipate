@@ -36,9 +36,6 @@ export async function POST({ request, locals }) {
   let res : ShadowBatchUploadResponse[] = [];
 
   try {
-    console.log('Uploading files to Shadow Drive')
-    console.log("info:", drive.userInfo)
-    console.log(await drive.getStorageAccount(storageKey))
     res = await drive.uploadMultipleFiles(storageKey, files)
   } catch (e) {
     console.log(e)

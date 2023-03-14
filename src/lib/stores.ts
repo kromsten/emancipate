@@ -16,3 +16,7 @@ walletStore.subscribe(store  => {
         address.set(store.wallet.publicKey.toBase58());
     } 
 })
+
+
+
+export const key : Writable<Uint8Array> = writable();

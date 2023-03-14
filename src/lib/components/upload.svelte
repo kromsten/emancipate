@@ -2,17 +2,18 @@
     import { FileDropzone } from '@skeletonlabs/skeleton';
 	import { decryptFileWithLit, encryptFileWithLit } from '$lib/utils/crypto';
 	import { JSON_POST_PARAMS } from '$lib/utils/util';
-	import { address } from '$lib/stores';
+	import { address, key } from '$lib/stores';
 	import RecordLogo from './recordLogo.svelte';
 	import { walletStore } from '@svelte-on-solana/wallet-adapter-core';
 
-    
+    import { createHash } from 'sha256-uint8array'
+
+
     type submitFile = {
         data: Blob
         size: number,
         name: string,
         encrypted: boolean,
-        symmetricKey?: Uint8Array
     }
 
     let password : string;
@@ -29,6 +30,7 @@
     }
 
 
+
     const onChangeHandler = (e: any): void => {
         files = e.target?.files as FileList;
 
@@ -42,33 +44,49 @@
         })
     }
 
+
+    const getKey = async () => {
+
+        const signature = await $walletStore.signMessage!(Buffer.from('Emancipate encryption'))
+        const digest = createHash().update(signature).digest('')
+        $key = Uint8Array.from(Buffer.from(digest))
+
+
+    }
+
     const encrypt = async (file : submitFile) => {
 
-        const key = await $walletStore.signMessage!(Buffer.from('Emancipate encryption'))
-        
-        if (!key) return;
+        if (!$key) await getKey();
+        if (!$key) return false;
 
-        const { encryptedFile, symmetricKey }  = await encryptFileWithLit(file.data, key);
+        const encrypted  = await encryptFileWithLit(file.data, $key);
         submitData[file.name].encrypted = true;
-        submitData[file.name].symmetricKey = symmetricKey;
-        submitData[file.name].data = encryptedFile;
-        submitData[file.name].size = encryptedFile.size;
+        submitData[file.name].data = encrypted;
+        submitData[file.name].size = encrypted.size;
+
+        return true
 
     }
 
     const decrypt = async (file : submitFile) => {
 
-        const content  = await decryptFileWithLit(file.data, file.symmetricKey!);
+        if (!key) await getKey();
+        if (!key) return false;
+
+        const content  = await decryptFileWithLit(file.data, $key);
         submitData[file.name].encrypted = false;
         submitData[file.name].data = content;
         submitData[file.name].size = content.size;
+
+        return true
+
     }
 
     const encryptAll = async () => {
 
         for (const file of Object.values(submitData)) {
             if (!file.encrypted) {
-                await encrypt(file);
+                if (!(await encrypt(file))) return;
             }
         }
         encrypted = true;
@@ -87,13 +105,15 @@
 
     const upload = async () => {
 
-        const formData = new FormData();
+        if (!address) return;
 
-        formData.append('address', $address)
+        const formData = new FormData();
 
         for(const file of Object.values(submitData)) {
             formData.append(file.name, file.data);
         }
+
+        formData.append('address', $address);
 
         const res = await fetch('/upload', {
             method: 'POST',
@@ -131,7 +151,7 @@
                 <div class="grid grid-cols-4 w-100">
                     <span>{file.name}</span>
                     <span class="text-center">{file.size} bytes</span>
-                    <span class="text-center">{file.encrypted ? "Encryped" : "Plain"}</span>
+                    <span class="text-center">{file.encrypted ? "Encrypted" : "Plain"}</span>
                     <div class="flex justify-end">
                         <button 
                             class="btn btn-sm variant-filled-primary rounded" 
