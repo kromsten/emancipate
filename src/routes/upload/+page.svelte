@@ -3,6 +3,6 @@
 </script>
 
 
-<main class="container mx-auto p-5">
+<main class="container mx-auto p-5 font-sans">
     <Upload />
 </main>

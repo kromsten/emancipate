@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '@skeletonlabs/skeleton/themes/theme-rocket.css';
+	import '@skeletonlabs/skeleton/themes/theme-gold-nouveau.css';
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
@@ -14,6 +14,10 @@
 	let wallets : any[];
 
 	let idl : any = {}
+
+	import { autoModeWatcher } from '@skeletonlabs/skeleton';
+	import Logo from '$lib/components/logo.svelte';
+
 	
 
 	onMount(async () => {
@@ -37,16 +41,19 @@
 
 	});
 
-
 </script>
 
+<svelte:head>{@html `<script>${autoModeWatcher.toString()} autoModeWatcher();</script>`}</svelte:head>
+
 <!-- App Shell -->
-<AppShell>
+<AppShell slotPageContent="bg-white">
 	<svelte:fragment slot="header">
 		<!-- App Bar -->
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<a href="/" class="text-xl">e-man-ci-pate</a>
+				<a href="/" class="text-3xl font-bold font-sans">
+					<Logo />
+				</a>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 
@@ -61,7 +68,17 @@
 
 	<WalletProvider autoConnect={true} {localStorageKey} {wallets}  />
 
+
 	<slot />
 
 
 </AppShell>
+
+
+<style>
+	:global(main) {
+		background-image: url('/background.svg');
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+</style>

@@ -1,0 +1,1 @@
+<img src="/record.png" alt="record logo">

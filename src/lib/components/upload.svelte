@@ -1,6 +1,9 @@
 <script lang="ts">
     import { FileDropzone } from '@skeletonlabs/skeleton';
 	import { decryptFileWithLit, encryptFileWithLit } from '$lib/utils/crypto';
+	import { JSON_POST_PARAMS } from '$lib/utils/util';
+	import { address } from '$lib/stores';
+	import RecordLogo from './recordLogo.svelte';
 
     
     type submitFile = {
@@ -38,6 +41,12 @@
     }
 
     const encrypt = async (file : submitFile) => {
+
+        if (!input.reportValidity()) {
+            input.focus()
+            return;
+        } 
+
         const { encryptedFile, symmetricKey }  = await encryptFileWithLit(file.data);
         submitData[file.name].encrypted = true;
         submitData[file.name].symmetricKey = symmetricKey;
@@ -47,6 +56,12 @@
     }
 
     const decrypt = async (file : submitFile) => {
+
+        if (!input.reportValidity()) {
+            input.focus()
+            return;
+        } 
+
         const content  = await decryptFileWithLit(file.data, file.symmetricKey!);
         submitData[file.name].encrypted = false;
         submitData[file.name].data = content;
@@ -85,7 +100,21 @@
     }
 
 
-    const upload = () => {
+    const upload = async () => {
+
+        const formData = new FormData();
+
+        formData.append('address', $address)
+
+        for(const file of Object.values(submitData)) {
+            formData.append(file.name, file.data);
+        }
+
+        const res = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        }).then(res => res.json());
+        console.log("res:", res)
 
     }
 
@@ -94,35 +123,66 @@
 </script>
 
 
-<section class="container my-5">
-    <h3 class="my-2">Select assets</h3>
 
-    <FileDropzone multiple name="fff" on:change={onChangeHandler}  />
+<section class="container mx-auto p-6">
+    <h2 class="my-2">Select assets</h2>
 
-    {#if Object.keys(submitData).length }
-        <h2 class="mt-3">Selected files:</h2>
-        {#each Object.values(submitData) as file }
+    <FileDropzone  multiple name="fff" 
+        class="bg-white"
+        on:change={onChangeHandler} 
+        border="border border-white"
+    >
+        <svelte:fragment slot="lead"><RecordLogo /></svelte:fragment>
+        <svelte:fragment slot="meta"></svelte:fragment>
 
-        <div class="grid grid-cols-2 w-100">
-            <span>{file.name}</span>
-            <span class="text-end">{file.size} bytes</span>
-        </div>
-        {/each}
+    </FileDropzone>
 
-        <div class="grid grid-cols-2 w-100 mt-5">
+    <div class="flex flex-col gap-2">
 
-            <!-- Encryption password -->
-            <input required minlength={3} bind:this={input} type="text" placeholder="Encryption Password" bind:value={password} />
-
-            <div class="flex justify-end">
-                <button class="button" on:click={encrypted ? decryptAll : encryptAll}>
-                    {#if encrypted}
-                        Decrypt All
-                    {:else}
-                        Encrypt All
-                    {/if}
-                </button>
+        {#if Object.keys(submitData).length }
+            <h3 class="mt-3">Assets To Upload:</h3>
+            {#each Object.values(submitData) as file }
+    
+                <div class="grid grid-cols-4 w-100">
+                    <span>{file.name}</span>
+                    <span class="text-center">{file.size} bytes</span>
+                    <span class="text-center">{file.encrypted ? "Encryped" : "Plain"}</span>
+                    <div class="flex justify-end">
+                        <button 
+                            class="btn btn-sm variant-filled-primary rounded" 
+                            on:click={() => submitData[file.name].encrypted ? decrypt(file) : encrypt(file)}>
+                            {submitData[file.name].encrypted ? "Decrypt" : "Encrypt" }
+                        </button>
+    
+                    </div>
+    
+                </div>
+            {/each}
+    
+            <div class="grid grid-cols-2 w-100 mt-5 mb-3">
+    
+                <!-- Encryption password -->
+                <input class="form-input rounded" required minlength={3} bind:this={input} type="text" placeholder="Encryption Password" bind:value={password} />
+    
+                <div class="flex justify-end">
+                    <button class="btn variant-filled-primary" on:click={encrypted ? decryptAll : encryptAll}>
+                        {#if encrypted}
+                            Decrypt All
+                        {:else}
+                            Encrypt All
+                        {/if}
+                    </button>
+                </div>
             </div>
-        </div>
-    {/if}
+
+            <div class="grid grid-cols-1 w-100 mt-7">
+                <div class="flex justify-center">
+                    <button class="btn btn-lg variant-filled-primary" on:click={upload}>
+                        Upload
+                    </button>
+                </div>
+            </div>
+        {/if}
+    </div>
+
 </section>

@@ -36,25 +36,21 @@
 
 
 <div>
-    <div class="px-3">
-        <h1 class="text-2xl font-bold">Artist</h1>
-    </div>
 
     { #if  myFiles }
 
         <div class="px-3 my-4">
-            <h3 class="text-xl font-bold">My assets</h3>
+            <h3 class="text-2xl font-bold">My assets</h3>
             <hr>
             { #each myFiles as asset }
-            <div>
-                { asset }
-            </div>
+                <div> { asset } </div>
             {/each}
         </div>
     {/if}
     
-    
     <br>
     
-    <a href="/upload" class="button unstyled">Upload New</a>
+    <div class="px-3">
+        <a href="/upload" class="btn variant-filled-primary">Upload New</a>
+    </div>
 </div>
